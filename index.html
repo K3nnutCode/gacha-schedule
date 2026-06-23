@@ -5,444 +5,970 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Gacha Schedule 2026</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
 
-  :root {
-    --bg: #0f0f1a;
-    --bg2: #1a1a2e;
-    --bg3: #16213e;
-    --border: #2a2a4a;
-    --text: #e0e0f0;
-    --text2: #9090b0;
-    --text3: #5a5a7a;
-    --gold: #f0c040;
-    --green: #2D6A4F;
-    --blue: #1B6CA8;
-    --red: #C84B31;
-    --purple: #4A4E69;
-    --grey: #5F5E5A;
-    --success: #2ecc71;
-    --warning: #d4a017;
-    --danger: #e74c3c;
-    --info: #3498db;
-    --radius: 10px;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    min-height: 100vh;
-    -webkit-tap-highlight-color: transparent;
-  }
+:root {
+  --bg:      #080910;
+  --bg2:     #0e0f18;
+  --bg3:     #13141f;
+  --border:  #1e1f30;
+  --border2: #2a2b40;
+  --text:    #ddddf0;
+  --text2:   #7b7c99;
+  --text3:   #3d3e55;
+  --gold:    #e8b84b;
+  --gold2:   #f5d07a;
+  --ef:      #3a9e6e;   /* Endfield green */
+  --ww:      #2e87cc;   /* WuWa blue */
+  --zzz:     #c94f35;   /* ZZZ red */
+  --nte:     #6b6f9a;   /* NTE purple */
+  --free:    #5a5e6a;
+  --success: #3ecf7a;
+  --warn:    #e8a230;
+  --danger:  #e05252;
+  --info:    #4a9ef5;
+  --radius:  12px;
+  --radius-sm: 8px;
+}
 
-  /* ── HEADER ── */
-  header {
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
 
-  .header-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--gold);
-    margin-bottom: 8px;
-  }
+/* ── SCANLINE TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
 
-  .stats {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
+/* ── HEADER ── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8,9,16,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px 10px;
+}
 
-  .stat {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 3px 10px;
-    font-size: 11px;
-    color: var(--text2);
-    white-space: nowrap;
-  }
+.header-row1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
 
-  .stat b { color: var(--text); font-weight: 600; }
+.logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
 
-  /* ── SYNC BAR ── */
-  .sync-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 16px;
-    font-size: 11px;
-    color: var(--text3);
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-  }
+.sync-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--text3);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 9px;
+  transition: all 0.2s;
+}
 
-  .sync-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--success);
-    flex-shrink: 0;
-    transition: background 0.2s;
-  }
-  .sync-dot.syncing { background: var(--warning); animation: pulse 1s infinite; }
-  .sync-dot.error { background: var(--danger); }
-  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+.sync-pill.syncing { color: var(--warn); border-color: rgba(232,162,48,0.3); }
+.sync-pill.error   { color: var(--danger); border-color: rgba(224,82,82,0.3); }
 
-  /* ── MAIN ── */
-  main {
-    padding: 12px 12px 100px;
-    max-width: 680px;
-    margin: 0 auto;
-  }
+.sync-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--success);
+  flex-shrink: 0;
+}
+.sync-pill.syncing .sync-dot { background: var(--warn); animation: pulse 1s infinite; }
+.sync-pill.error   .sync-dot { background: var(--danger); }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.2} }
 
-  /* ── NTE RULE ── */
-  .nte-rule {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 12px;
-    font-size: 12px;
-    color: var(--text2);
-    margin-bottom: 12px;
-    line-height: 1.5;
-  }
-  .nte-rule b { color: var(--purple); }
+.header-row2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  /* ── FILTERS ── */
-  .filter-row {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 14px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .filter-row::-webkit-scrollbar { display: none; }
+.streak {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  flex-shrink: 0;
+}
 
-  .filter-btn {
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 12px;
-    cursor: pointer;
-    background: transparent;
-    color: var(--text2);
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: all 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .filter-btn.active {
-    background: var(--bg3);
-    border-color: var(--text2);
-    color: var(--text);
-    font-weight: 600;
-  }
+.streak-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-left: 2px;
+  align-self: flex-end;
+  margin-bottom: 2px;
+}
 
-  /* ── MONTH ── */
-  .month-block { margin-bottom: 20px; }
+.progress-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-  .month-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text3);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid var(--border);
-  }
+.progress-bar-bg {
+  height: 4px;
+  background: var(--bg3);
+  border-radius: 20px;
+  overflow: hidden;
+}
 
-  /* ── DAY ROW ── */
-  .day-row {
-    display: grid;
-    grid-template-columns: 64px auto 1fr auto auto;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 10px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    margin-bottom: 5px;
-    cursor: pointer;
-    transition: background 0.1s, opacity 0.2s;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ef), var(--ww));
+  border-radius: 20px;
+  transition: width 0.4s ease;
+}
 
-  .day-row:active { background: var(--bg3); }
-  .day-row.done { opacity: 0.38; }
-  .day-row.done .check-circle { background: var(--success); border-color: transparent; }
-  .day-row.done .check-circle svg { opacity: 1; }
-  .day-row.saving { pointer-events: none; }
-  .day-row.saving .check-circle { border-color: var(--warning); }
-  .day-row.is-today { border-color: var(--info); }
+.progress-label {
+  font-size: 10px;
+  color: var(--text3);
+  display: flex;
+  justify-content: space-between;
+}
 
-  .date-col {}
-  .date-num { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2; }
-  .day-name { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.progress-label span { color: var(--text2); }
 
-  .game-pill {
-    font-size: 10px;
-    font-weight: 700;
-    color: #fff;
-    padding: 4px 9px;
-    border-radius: 20px;
-    white-space: nowrap;
-    text-align: center;
-  }
+/* ── TODAY HERO ── */
+.today-hero {
+  position: relative;
+  margin: 12px 12px 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border2);
+}
 
-  .focus-col {
-    font-size: 11px;
-    color: var(--text2);
-    line-height: 1.4;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+.today-hero-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  transition: background 0.3s;
+}
 
-  .today-badge {
-    font-size: 10px;
-    background: rgba(52,152,219,0.15);
-    color: var(--info);
-    border-radius: 20px;
-    padding: 3px 7px;
-    white-space: nowrap;
-    border: 1px solid rgba(52,152,219,0.3);
-  }
+.today-hero-inner {
+  position: relative;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 
-  .check-circle {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    border: 1.5px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.15s;
-  }
+.today-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 4px;
+}
 
-  .check-circle svg {
-    width: 14px; height: 14px;
-    stroke: #fff;
-    fill: none;
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
+.today-game {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
 
-  /* ── MOBILE OVERRIDES ── */
-  @media (max-width: 480px) {
-    .day-row {
-      grid-template-columns: 58px auto 1fr auto;
-    }
-    .focus-col { display: none; }
-    .today-badge { display: none; }
-    .day-row.is-today { border-color: var(--info); }
-  }
+.today-focus {
+  font-size: 11px;
+  color: var(--text2);
+}
 
-  /* ── BOTTOM SAFE AREA for phones ── */
-  .bottom-space { height: env(safe-area-inset-bottom, 20px); }
+.today-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  padding: 3px 9px;
+  border-radius: 20px;
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+}
+
+.timer-block {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.timer-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.timer-row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.tbtn {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: opacity 0.15s;
+}
+.tbtn:active { opacity: 0.7; }
+.tbtn.start  { background: var(--success); color: #000; }
+.tbtn.stop   { background: var(--danger);  color: #fff; }
+.tbtn.reset  { background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
+
+/* ── GAME MINI STATS ── */
+.game-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 10px 12px 0;
+}
+
+.gs-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.gs-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+}
+
+.gs-card.ef::before { background: var(--ef); }
+.gs-card.ww::before { background: var(--ww); }
+.gs-card.zzz::before { background: var(--zzz); }
+
+.gs-name {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.gs-count {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.gs-total {
+  font-size: 10px;
+  color: var(--text3);
+  font-weight: 400;
+}
+
+.gs-bar {
+  height: 2px;
+  background: var(--bg3);
+  border-radius: 20px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.gs-bar-fill {
+  height: 100%;
+  border-radius: 20px;
+  transition: width 0.4s;
+}
+
+.ef .gs-bar-fill  { background: var(--ef); }
+.ww .gs-bar-fill  { background: var(--ww); }
+.zzz .gs-bar-fill { background: var(--zzz); }
+
+/* ── FILTERS ── */
+.filter-row {
+  display: flex;
+  gap: 6px;
+  margin: 12px 12px 0;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.filter-row::-webkit-scrollbar { display: none; }
+
+.fbtn {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 13px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text2);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.fbtn.active {
+  background: var(--bg3);
+  border-color: var(--border2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── LIST ── */
+#schedule-list {
+  margin: 14px 12px 0;
+}
+
+.month-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.month-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── DAY ROW ── */
+.day-row {
+  display: grid;
+  grid-template-columns: 58px auto 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 4px;
+  cursor: pointer;
+  background: var(--bg2);
+  transition: background 0.1s, border-color 0.15s, opacity 0.2s;
+  touch-action: manipulation;
+  position: relative;
+}
+
+.day-row:active { background: var(--bg3); }
+
+.day-row.done {
+  opacity: 0.3;
+  background: var(--bg);
+}
+
+.day-row.done .tick { background: var(--success); border-color: transparent; }
+.day-row.done .tick svg { opacity: 1; }
+
+.day-row.is-today {
+  border-color: rgba(74,158,245,0.45);
+  background: rgba(74,158,245,0.04);
+  scroll-margin-top: 180px;
+}
+
+.day-row.has-event { border-color: rgba(232,162,48,0.4); }
+.day-row.has-event.done { border-color: var(--border); }
+
+.day-row.saving { pointer-events: none; }
+.day-row.saving .tick { border-color: var(--warn); }
+
+.date-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.date-day {
+  font-size: 9px;
+  color: var(--text3);
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.gpill {
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+
+.focus-text {
+  font-size: 11px;
+  color: var(--text2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event-tag {
+  font-size: 9px;
+  color: var(--warn);
+  background: rgba(232,162,48,0.1);
+  border: 1px solid rgba(232,162,48,0.25);
+  border-radius: 20px;
+  padding: 2px 7px;
+  white-space: nowrap;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.flag-btn {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1px dashed var(--border2);
+  background: transparent;
+  color: var(--text3);
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  padding: 0;
+}
+.flag-btn:hover { border-color: var(--warn); color: var(--warn); }
+
+.time-chip {
+  font-size: 9px;
+  color: var(--gold);
+  background: rgba(232,184,75,0.08);
+  border: 1px solid rgba(232,184,75,0.2);
+  border-radius: 20px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tick {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.tick svg {
+  width: 13px; height: 13px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+/* ── MODAL ── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+.overlay.open { display: flex; }
+
+.sheet {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  width: 100%;
+  max-width: 480px;
+}
+
+.sheet-handle {
+  width: 36px; height: 4px;
+  background: var(--border2);
+  border-radius: 20px;
+  margin: 0 auto 16px;
+}
+
+.sheet h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.sheet p {
+  font-size: 11px;
+  color: var(--text2);
+  margin-bottom: 14px;
+}
+
+.sheet input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  outline: none;
+  margin-bottom: 12px;
+}
+.sheet input:focus { border-color: var(--warn); }
+
+.sheet-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.sbtn {
+  flex: 1;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.03em;
+}
+
+.sbtn.cancel { background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
+.sbtn.clear  { background: transparent; color: var(--danger); border: 1px solid rgba(224,82,82,0.3); flex: 0.7; }
+.sbtn.save   { background: var(--warn); color: #000; }
+
+/* ── NTE STRIP ── */
+.nte-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 12px 0;
+  padding: 8px 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--nte);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.nte-strip b { color: var(--nte); }
+
+/* ── MOBILE ── */
+@media (max-width: 420px) {
+  .day-row { grid-template-columns: 52px auto 1fr auto auto; gap: 6px; }
+  .focus-text { display: none; }
+  .today-game { font-size: 18px; }
+  .timer-num { font-size: 22px; }
+}
+
+.bottom-pad { height: calc(32px + env(safe-area-inset-bottom)); }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-title">🎮 Gacha Schedule · Jun 23 – Aug 22, 2026</div>
-  <div class="stats">
-    <div class="stat">Done <b id="done-count">0</b>/61</div>
-    <div class="stat">Endfield <b id="ef-count">0</b>/21</div>
-    <div class="stat">WuWa <b id="ww-count">0</b>/18</div>
-    <div class="stat">ZZZ <b id="zzz-count">0</b>/18</div>
+  <div class="header-row1">
+    <div class="logo">Mission Log</div>
+    <div class="sync-pill syncing" id="sync-pill">
+      <div class="sync-dot"></div>
+      <span id="sync-txt">Connecting</span>
+    </div>
+  </div>
+  <div class="header-row2">
+    <div class="streak">
+      <span id="streak-num">0</span>
+      <div>
+        <div style="font-size:9px;font-weight:500;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;line-height:1">Streak</div>
+        <div style="font-size:9px;color:var(--text3);line-height:1;margin-top:2px">days</div>
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="progress-label">
+        <span><span id="done-count">0</span> / 61 days</span>
+        <span id="pct">0%</span>
+      </div>
+    </div>
   </div>
 </header>
 
-<div class="sync-bar">
-  <div class="sync-dot syncing" id="sync-dot"></div>
-  <span id="sync-label">Connecting to Google Sheet...</span>
+<!-- TODAY HERO -->
+<div class="today-hero" id="today-hero">
+  <div class="today-hero-bg" id="today-bg"></div>
+  <div class="today-hero-inner">
+    <div>
+      <div class="today-label">Today's Mission</div>
+      <div class="today-game" id="tc-game" style="color:#fff">—</div>
+      <div class="today-focus" id="tc-focus">—</div>
+      <div class="today-pill" id="tc-pill"></div>
+    </div>
+    <div class="timer-block">
+      <div class="timer-num" id="timer-num">00:00</div>
+      <div class="timer-row">
+        <button class="tbtn start" id="timer-btn" onclick="toggleTimer()">▶ Start</button>
+        <button class="tbtn reset" id="reset-btn" onclick="resetTimer()" style="display:none">↺</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<main>
-  <div class="nte-rule">
-    ⚡ <b>NTE — every day</b>: 5–10 min stamina dump + dailies. Runs underneath the rotation.
+<!-- GAME STATS -->
+<div class="game-stats">
+  <div class="gs-card ef">
+    <div class="gs-name">Endfield</div>
+    <div><span class="gs-count" id="ef-count">0</span><span class="gs-total">/21</span></div>
+    <div class="gs-bar"><div class="gs-bar-fill" id="ef-bar" style="width:0%"></div></div>
   </div>
-
-  <div class="filter-row">
-    <button class="filter-btn active" data-filter="all">All</button>
-    <button class="filter-btn" data-filter="Endfield">Endfield</button>
-    <button class="filter-btn" data-filter="WuWa">WuWa</button>
-    <button class="filter-btn" data-filter="ZZZ">ZZZ / Free</button>
-    <button class="filter-btn" data-filter="todo">Undone only</button>
+  <div class="gs-card ww">
+    <div class="gs-name">WuWa</div>
+    <div><span class="gs-count" id="ww-count">0</span><span class="gs-total">/18</span></div>
+    <div class="gs-bar"><div class="gs-bar-fill" id="ww-bar" style="width:0%"></div></div>
   </div>
+  <div class="gs-card zzz">
+    <div class="gs-name">ZZZ</div>
+    <div><span class="gs-count" id="zzz-count">0</span><span class="gs-total">/18</span></div>
+    <div class="gs-bar"><div class="gs-bar-fill" id="zzz-bar" style="width:0%"></div></div>
+  </div>
+</div>
 
-  <div id="schedule-list"></div>
-  <div class="bottom-space"></div>
-</main>
+<!-- NTE STRIP -->
+<div class="nte-strip">
+  ⚡ <b>NTE daily</b> — 5–10 min stamina dump. Every day, underneath the rotation.
+</div>
+
+<!-- FILTERS -->
+<div class="filter-row">
+  <button class="fbtn active" data-filter="all">All</button>
+  <button class="fbtn" data-filter="Endfield">Endfield</button>
+  <button class="fbtn" data-filter="WuWa">WuWa</button>
+  <button class="fbtn" data-filter="ZZZ">ZZZ</button>
+  <button class="fbtn" data-filter="todo">Undone</button>
+</div>
+
+<div id="schedule-list"></div>
+<div class="bottom-pad"></div>
+
+<!-- EVENT SHEET -->
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>⚠️ Event Deadline</h3>
+    <p id="sheet-date">Set a deadline reminder for this day</p>
+    <input type="text" id="sheet-input" placeholder="e.g. WuWa collab ends · 2 days left" maxlength="40">
+    <div class="sheet-btns">
+      <button class="sbtn clear" id="sheet-clear" onclick="clearEvent()">Clear</button>
+      <button class="sbtn cancel" onclick="closeSheet()">Cancel</button>
+      <button class="sbtn save" onclick="saveEvent()">Set</button>
+    </div>
+  </div>
+</div>
 
 <script>
-const WEBHOOK = "https://script.google.com/macros/s/AKfycbxBOHAdpji2plZzikpGtvunoAe08GPLouGtEOdpCezqOg0p-xNA995h1O4w_nd9v7DO/exec";
+const WEBHOOK     = "https://script.google.com/macros/s/AKfycbxBOHAdpji2plZzikpGtvunoAe08GPLouGtEOdpCezqOg0p-xNA995h1O4w_nd9v7DO/exec";
+const LOCAL_KEY   = "gm_local_v3";
 
-const SCHEDULE = {
-  Monday:    { game: "Endfield",   color: "#2D6A4F", focus: "Factory + Combat + Story" },
-  Tuesday:   { game: "WuWa",       color: "#1B6CA8", focus: "Story session" },
-  Wednesday: { game: "Endfield",   color: "#2D6A4F", focus: "Factory check — don't skip" },
-  Thursday:  { game: "ZZZ",        color: "#C84B31", focus: "Backlog catch-up" },
-  Friday:    { game: "WuWa",       color: "#1B6CA8", focus: "Story session" },
-  Saturday:  { game: "Endfield",   color: "#2D6A4F", focus: "Extended — weekend audit" },
-  Sunday:    { game: "ZZZ / Free", color: "#5F5E5A", focus: "Overflow or full rest — no guilt" },
+const SCH = {
+  Monday:    { game:"Endfield",   color:"#3a9e6e", focus:"Factory + Combat + Story" },
+  Tuesday:   { game:"WuWa",       color:"#2e87cc", focus:"Story session" },
+  Wednesday: { game:"Endfield",   color:"#3a9e6e", focus:"Factory check — don't skip" },
+  Thursday:  { game:"ZZZ",        color:"#c94f35", focus:"Backlog catch-up" },
+  Friday:    { game:"WuWa",       color:"#2e87cc", focus:"Story session" },
+  Saturday:  { game:"Endfield",   color:"#3a9e6e", focus:"Extended — weekend audit" },
+  Sunday:    { game:"ZZZ / Free", color:"#5a5e6a", focus:"Overflow or full rest — no guilt" },
 };
 
-const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const DAYS   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const start = new Date(2026, 5, 23);
-const today = new Date();
+const START  = new Date(2026,5,23);
+const TODAY  = new Date();
 
-let done = {};
-let filter = "all";
-let pendingSaves = {};
+let done       = {};
+let events     = {};
+let loggedTime = {};
+let filter     = "all";
+let pending    = {};
+let todayIdx   = -1;
 
-function setSyncStatus(state, label) {
-  document.getElementById("sync-dot").className = "sync-dot" + (state === "syncing" ? " syncing" : state === "error" ? " error" : "");
-  document.getElementById("sync-label").textContent = label;
-}
+// timer
+let timerSec  = 0;
+let timerOn   = false;
+let timerIval = null;
 
-async function loadFromSheet() {
-  setSyncStatus("syncing", "Loading from Google Sheet...");
-  try {
-    const res = await fetch(WEBHOOK + "?t=" + Date.now());
-    const data = await res.json();
-    if (data.success) {
-      done = data.done || {};
-      const count = Object.values(done).filter(Boolean).length;
-      setSyncStatus("ok", count > 0 ? `Loaded — ${count} day${count !== 1 ? "s" : ""} done` : "Connected — tap a day to mark done");
-    } else {
-      setSyncStatus("error", "Sheet returned an error");
-    }
-  } catch(e) {
-    setSyncStatus("error", "Could not reach Google Sheet");
+function pad(n){ return String(n).padStart(2,"0"); }
+function fmt(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60; return h>0?`${pad(h)}:${pad(m)}:${pad(sec)}`:`${pad(m)}:${pad(sec)}`; }
+
+function toggleTimer(){
+  if(timerOn){
+    clearInterval(timerIval); timerOn=false;
+    document.getElementById("timer-btn").className="tbtn start";
+    document.getElementById("timer-btn").textContent="▶ Resume";
+    document.getElementById("reset-btn").style.display="flex";
+    if(todayIdx>=0){ loggedTime[todayIdx]=timerSec; saveLocal(); render(); }
+  } else {
+    timerOn=true;
+    document.getElementById("timer-btn").className="tbtn stop";
+    document.getElementById("timer-btn").textContent="⏹ Stop";
+    document.getElementById("reset-btn").style.display="none";
+    timerIval=setInterval(()=>{ timerSec++; document.getElementById("timer-num").textContent=fmt(timerSec); },1000);
   }
-  render();
 }
 
-async function saveToSheet(dayIndex, isDone) {
-  setSyncStatus("syncing", "Saving...");
-  try {
-    const res = await fetch(`${WEBHOOK}?dayIndex=${dayIndex}&done=${isDone}&t=${Date.now()}`);
-    const data = await res.json();
-    if (data.success) {
-      const count = Object.values(done).filter(Boolean).length;
-      setSyncStatus("ok", `Saved ✔ — ${count} day${count !== 1 ? "s" : ""} done`);
-    } else {
-      setSyncStatus("error", "Save failed — try again");
-      done[dayIndex] = !isDone;
-    }
-  } catch(e) {
-    setSyncStatus("error", "Could not reach Google Sheet");
-    done[dayIndex] = !isDone;
-  }
-  delete pendingSaves[dayIndex];
-  render();
+function resetTimer(){
+  clearInterval(timerIval); timerOn=false; timerSec=0;
+  document.getElementById("timer-num").textContent="00:00";
+  document.getElementById("timer-btn").className="tbtn start";
+  document.getElementById("timer-btn").textContent="▶ Start";
+  document.getElementById("reset-btn").style.display="none";
+  if(todayIdx>=0){ loggedTime[todayIdx]=0; saveLocal(); render(); }
 }
 
-function getDayData(offset) {
-  const d = new Date(start);
-  d.setDate(d.getDate() + offset);
-  return { d, dayName: DAYS[d.getDay()], ...SCHEDULE[DAYS[d.getDay()]] };
+function saveLocal(){ try{ localStorage.setItem(LOCAL_KEY,JSON.stringify({events,loggedTime})); }catch(e){} }
+function loadLocal(){ try{ const r=localStorage.getItem(LOCAL_KEY); if(r){ const d=JSON.parse(r); events=d.events||{}; loggedTime=d.loggedTime||{}; } }catch(e){} }
+
+function setSyncStatus(state,label){
+  const p=document.getElementById("sync-pill");
+  p.className="sync-pill"+(state==="syncing"?" syncing":state==="error"?" error":"");
+  document.getElementById("sync-txt").textContent=label;
 }
 
-function render() {
-  const list = document.getElementById("schedule-list");
-  list.innerHTML = "";
+async function loadFromSheet(){
+  setSyncStatus("syncing","Syncing");
+  try{
+    const r=await fetch(WEBHOOK+"?t="+Date.now());
+    const d=await r.json();
+    if(d.success){ done=d.done||{}; setSyncStatus("ok","Synced"); }
+    else setSyncStatus("error","Error");
+  }catch(e){ setSyncStatus("error","Offline"); }
+  render(); scrollToToday();
+}
 
-  let doneCount = 0, efDone = 0, wwDone = 0, zzzDone = 0;
-  for (let i = 0; i < 61; i++) {
-    if (done[i]) {
+async function saveToSheet(idx,val){
+  setSyncStatus("syncing","Saving");
+  try{
+    const r=await fetch(`${WEBHOOK}?dayIndex=${idx}&done=${val}&t=${Date.now()}`);
+    const d=await r.json();
+    if(d.success){ setSyncStatus("ok","Saved"); }
+    else{ setSyncStatus("error","Failed"); done[idx]=!val; }
+  }catch(e){ setSyncStatus("error","Offline"); done[idx]=!val; }
+  delete pending[idx]; render();
+}
+
+function getDayData(i){
+  const d=new Date(START); d.setDate(d.getDate()+i);
+  const dn=DAYS[d.getDay()]; return {d,dayName:dn,...SCH[dn]};
+}
+
+function getTodayIdx(){
+  for(let i=0;i<61;i++){ const d=new Date(START); d.setDate(d.getDate()+i); if(d.toDateString()===TODAY.toDateString()) return i; }
+  return -1;
+}
+
+function calcStreak(){
+  let s=0;
+  const base=todayIdx>=0?todayIdx:60;
+  for(let i=base;i>=0;i--){ if(done[i]) s++; else break; }
+  return s;
+}
+
+function buildTodayHero(){
+  todayIdx=getTodayIdx();
+  if(todayIdx<0){ document.getElementById("today-hero").style.display="none"; return; }
+  const {d,dayName,game,color,focus}=getDayData(todayIdx);
+  document.getElementById("tc-game").textContent=game;
+  document.getElementById("tc-game").style.color=color;
+  document.getElementById("tc-focus").textContent=focus;
+  document.getElementById("tc-pill").textContent=`${d.getDate()} ${MONTHS[d.getMonth()]} · ${dayName}`;
+  document.getElementById("tc-pill").style.background=color+"22";
+  document.getElementById("tc-pill").style.color=color;
+  document.getElementById("tc-pill").style.border=`1px solid ${color}44`;
+  document.getElementById("today-bg").style.background=color;
+  if(loggedTime[todayIdx]){ timerSec=loggedTime[todayIdx]; document.getElementById("timer-num").textContent=fmt(timerSec); document.getElementById("reset-btn").style.display="flex"; }
+}
+
+function scrollToToday(){
+  setTimeout(()=>{ const el=document.querySelector(".day-row.is-today"); if(el) el.scrollIntoView({behavior:"smooth",block:"center"}); },400);
+}
+
+// modal
+let modalIdx=-1;
+function openSheet(i,e){ e.stopPropagation(); modalIdx=i; const {d}=getDayData(i); document.getElementById("sheet-date").textContent=`${d.getDate()} ${MONTHS[d.getMonth()]} — tap Set to save`; document.getElementById("sheet-input").value=events[i]||""; document.getElementById("sheet-clear").style.display=events[i]?"flex":"none"; document.getElementById("overlay").classList.add("open"); setTimeout(()=>document.getElementById("sheet-input").focus(),150); }
+function closeSheet(){ document.getElementById("overlay").classList.remove("open"); modalIdx=-1; }
+function saveEvent(){ const v=document.getElementById("sheet-input").value.trim(); if(v&&modalIdx>=0){ events[modalIdx]=v; saveLocal(); render(); } closeSheet(); }
+function clearEvent(){ if(modalIdx>=0){ delete events[modalIdx]; saveLocal(); render(); } closeSheet(); }
+document.getElementById("overlay").addEventListener("click",function(e){ if(e.target===this) closeSheet(); });
+document.getElementById("sheet-input").addEventListener("keydown",function(e){ if(e.key==="Enter") saveEvent(); if(e.key==="Escape") closeSheet(); });
+
+function render(){
+  // counts
+  let doneCount=0,efDone=0,wwDone=0,zzzDone=0;
+  for(let i=0;i<61;i++){
+    if(done[i]){
       doneCount++;
-      const { game } = getDayData(i);
-      if (game === "Endfield") efDone++;
-      else if (game === "WuWa") wwDone++;
+      const{game}=getDayData(i);
+      if(game==="Endfield") efDone++;
+      else if(game==="WuWa") wwDone++;
       else zzzDone++;
     }
   }
-  document.getElementById("done-count").textContent = doneCount;
-  document.getElementById("ef-count").textContent = efDone;
-  document.getElementById("ww-count").textContent = wwDone;
-  document.getElementById("zzz-count").textContent = zzzDone;
+  document.getElementById("done-count").textContent=doneCount;
+  document.getElementById("pct").textContent=Math.round(doneCount/61*100)+"%";
+  document.getElementById("progress-fill").style.width=(doneCount/61*100)+"%";
+  document.getElementById("ef-count").textContent=efDone;
+  document.getElementById("ww-count").textContent=wwDone;
+  document.getElementById("zzz-count").textContent=zzzDone;
+  document.getElementById("ef-bar").style.width=(efDone/21*100)+"%";
+  document.getElementById("ww-bar").style.width=(wwDone/18*100)+"%";
+  document.getElementById("zzz-bar").style.width=(zzzDone/18*100)+"%";
+  document.getElementById("streak-num").textContent=calcStreak();
 
-  const groups = {};
-  for (let i = 0; i < 61; i++) {
-    const { d, game } = getDayData(i);
-    const isDone = !!done[i];
-    if (filter === "todo" && isDone) continue;
-    if (filter !== "all" && filter !== "todo") {
-      if (filter === "ZZZ / Free") { if (!game.startsWith("ZZZ")) continue; }
-      else if (game !== filter) continue;
+  // list
+  const list=document.getElementById("schedule-list");
+  list.innerHTML="";
+  const groups={};
+  for(let i=0;i<61;i++){
+    const{d,game}=getDayData(i);
+    const isDone=!!done[i];
+    if(filter==="todo"&&isDone) continue;
+    if(filter!=="all"&&filter!=="todo"){
+      if(filter==="ZZZ"){ if(!game.startsWith("ZZZ")) continue; }
+      else if(game!==filter) continue;
     }
-    const key = `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-    if (!groups[key]) groups[key] = [];
+    const key=`${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+    if(!groups[key]) groups[key]=[];
     groups[key].push(i);
   }
 
-  Object.entries(groups).forEach(([month, offsets]) => {
-    const block = document.createElement("div");
-    block.className = "month-block";
-    block.innerHTML = `<div class="month-label">${month}</div>`;
+  Object.entries(groups).forEach(([month,offsets])=>{
+    const mb=document.createElement("div");
+    mb.innerHTML=`<div class="month-label">${month}</div>`;
 
-    offsets.forEach(i => {
-      const { d, dayName, game, color, focus } = getDayData(i);
-      const isDone = !!done[i];
-      const isSaving = !!pendingSaves[i];
-      const isToday = d.toDateString() === today.toDateString();
+    offsets.forEach(i=>{
+      const{d,dayName,game,color,focus}=getDayData(i);
+      const isDone=!!done[i];
+      const isSaving=!!pending[i];
+      const isToday=d.toDateString()===TODAY.toDateString();
+      const hasEvent=!!events[i];
+      const hasTime=loggedTime[i]&&loggedTime[i]>0;
 
-      const row = document.createElement("div");
-      row.className = ["day-row", isDone?"done":"", isToday?"is-today":"", isSaving?"saving":""].filter(Boolean).join(" ");
-      row.innerHTML = `
-        <div class="date-col">
+      const row=document.createElement("div");
+      row.className=["day-row",isDone?"done":"",isToday?"is-today":"",isSaving?"saving":"",hasEvent&&!isDone?"has-event":""].filter(Boolean).join(" ");
+
+      const flagCell=hasEvent
+        ?`<div class="event-tag" title="${events[i]}" onclick="openSheet(${i},event)">⚠ ${events[i]}</div>`
+        :`<button class="flag-btn" onclick="openSheet(${i},event)">⚑</button>`;
+
+      row.innerHTML=`
+        <div>
           <div class="date-num">${d.getDate()} ${MONTHS[d.getMonth()]}</div>
-          <div class="day-name">${dayName}</div>
+          <div class="date-day">${dayName}</div>
         </div>
-        <div class="game-pill" style="background:${color}">${game}</div>
-        <div class="focus-col">${focus}</div>
-        ${isToday ? '<div class="today-badge">today</div>' : '<div></div>'}
-        <div class="check-circle">
-          <svg viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg>
-        </div>
+        <div class="gpill" style="background:${color}">${game}</div>
+        <div class="focus-text">${focus}</div>
+        ${hasTime?`<div class="time-chip">⏱ ${fmt(loggedTime[i])}</div>`:"<div></div>"}
+        ${flagCell}
+        <div class="tick"><svg viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
       `;
 
-      row.addEventListener("click", () => {
-        if (pendingSaves[i]) return;
-        const newState = !done[i];
-        done[i] = newState;
-        pendingSaves[i] = true;
-        render();
-        saveToSheet(i, newState);
+      row.addEventListener("click",e=>{
+        if(e.target.closest(".flag-btn")||e.target.closest(".event-tag")) return;
+        if(pending[i]) return;
+        const ns=!done[i]; done[i]=ns; pending[i]=true; render(); saveToSheet(i,ns);
       });
 
-      block.appendChild(row);
+      mb.appendChild(row);
     });
-
-    list.appendChild(block);
+    list.appendChild(mb);
   });
 }
 
-document.querySelectorAll(".filter-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    filter = btn.dataset.filter;
-    render();
+document.querySelectorAll(".fbtn").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll(".fbtn").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active"); filter=b.dataset.filter; render();
   });
 });
 
+loadLocal();
+buildTodayHero();
 loadFromSheet();
 </script>
 </body>
