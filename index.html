@@ -370,8 +370,18 @@ function setSyncStatus(state,label){
 }
 async function loadFromSheet(){
   setSyncStatus("syncing","Syncing");
-  try{const r=await fetch(WEBHOOK+"?t="+Date.now());const d=await r.json();if(d.success){done=d.done||{};setSyncStatus("ok","Synced");}else setSyncStatus("error","Error");}
-  catch(e){setSyncStatus("error","Offline");}
+  try{
+    const r=await fetch(WEBHOOK+"?t="+Date.now());
+    const d=await r.json();
+    if(d.success){
+      done=d.done||{};
+      // merge sheet notes over local — sheet is source of truth
+      const sheetNotes=d.notes||{};
+      Object.keys(sheetNotes).forEach(k=>{ notes[k]=sheetNotes[k]; });
+      saveLocal();
+      setSyncStatus("ok","Synced");
+    }else setSyncStatus("error","Error");
+  }catch(e){setSyncStatus("error","Offline");}
   render();scrollToToday();
 }
 async function saveToSheet(idx,val){
@@ -428,8 +438,29 @@ document.getElementById("event-input").addEventListener("keydown",function(e){if
 let modalNoteIdx=-1;
 function openNoteSheet(i,e){e.stopPropagation();modalNoteIdx=i;const{d,game}=getDayData(i);document.getElementById("note-date-label").textContent=`${d.getDate()} ${MONTHS[d.getMonth()]} · ${game}`;document.getElementById("note-input").value=notes[i]||"";document.getElementById("note-clear-btn").style.display=notes[i]?"flex":"none";document.getElementById("overlay-note").classList.add("open");setTimeout(()=>document.getElementById("note-input").focus(),150);}
 function closeNoteSheet(){document.getElementById("overlay-note").classList.remove("open");modalNoteIdx=-1;}
-function saveNote(){const v=document.getElementById("note-input").value.trim();if(modalNoteIdx>=0){if(v)notes[modalNoteIdx]=v;else delete notes[modalNoteIdx];saveLocal();render();}closeNoteSheet();}
-function clearNote(){if(modalNoteIdx>=0){delete notes[modalNoteIdx];saveLocal();render();}closeNoteSheet();}
+async function syncNoteToSheet(idx,val){
+  setSyncStatus("syncing","Saving note");
+  try{
+    const encoded=encodeURIComponent(val);
+    const r=await fetch(`${WEBHOOK}?dayIndex=${idx}&note=${encoded}&t=${Date.now()}`);
+    const d=await r.json();
+    if(d.success)setSyncStatus("ok","Note saved");
+    else setSyncStatus("error","Note save failed");
+  }catch(e){setSyncStatus("error","Offline — note saved locally only");}
+}
+function saveNote(){
+  const v=document.getElementById("note-input").value.trim();
+  if(modalNoteIdx>=0){
+    if(v){ notes[modalNoteIdx]=v; syncNoteToSheet(modalNoteIdx,v); }
+    else{ delete notes[modalNoteIdx]; syncNoteToSheet(modalNoteIdx,""); }
+    saveLocal();render();
+  }
+  closeNoteSheet();
+}
+function clearNote(){
+  if(modalNoteIdx>=0){delete notes[modalNoteIdx];syncNoteToSheet(modalNoteIdx,"");saveLocal();render();}
+  closeNoteSheet();
+}
 document.getElementById("overlay-note").addEventListener("click",function(e){if(e.target===this)closeNoteSheet();});
 document.getElementById("note-input").addEventListener("keydown",function(e){if(e.key==="Escape")closeNoteSheet();});
 
