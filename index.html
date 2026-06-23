@@ -360,8 +360,9 @@ function resetTimer(){
   if(todayIdx>=0){loggedTime[todayIdx]=0;saveLocal();render();}
 }
 
-function saveLocal(){try{localStorage.setItem(LOCAL_KEY,JSON.stringify({events,loggedTime,notes}));}catch(e){}}
-function loadLocal(){try{const r=localStorage.getItem(LOCAL_KEY);if(r){const d=JSON.parse(r);events=d.events||{};loggedTime=d.loggedTime||{};notes=d.notes||{};}}catch(e){}}
+function saveLocal(){try{localStorage.setItem(LOCAL_KEY,JSON.stringify({events,loggedTime,notes,retryQueue}));}catch(e){}}
+let retryQueue={};
+function loadLocal(){try{const r=localStorage.getItem(LOCAL_KEY);if(r){const d=JSON.parse(r);events=d.events||{};loggedTime=d.loggedTime||{};notes=d.notes||{};retryQueue=d.retryQueue||{};}}catch(e){}}
 
 function setSyncStatus(state,label){
   const p=document.getElementById("sync-pill");
@@ -444,9 +445,37 @@ async function syncNoteToSheet(idx,val){
     const encoded=encodeURIComponent(val);
     const r=await fetch(`${WEBHOOK}?dayIndex=${idx}&note=${encoded}&t=${Date.now()}`);
     const d=await r.json();
-    if(d.success)setSyncStatus("ok","Note saved");
-    else setSyncStatus("error","Note save failed");
-  }catch(e){setSyncStatus("error","Offline — note saved locally only");}
+    if(d.success){
+      delete retryQueue[idx];
+      saveLocal();
+      setSyncStatus("ok","Note saved");
+    }else{
+      retryQueue[idx]=val;
+      saveLocal();
+      setSyncStatus("error","Note save failed — will retry");
+    }
+  }catch(e){
+    retryQueue[idx]=val;
+    saveLocal();
+    setSyncStatus("error","Offline — will sync when back online");
+  }
+}
+
+async function flushRetryQueue(){
+  const keys=Object.keys(retryQueue);
+  if(keys.length===0)return;
+  setSyncStatus("syncing",`Syncing ${keys.length} unsaved note${keys.length>1?"s":""}...`);
+  for(const idx of keys){
+    try{
+      const encoded=encodeURIComponent(retryQueue[idx]);
+      const r=await fetch(`${WEBHOOK}?dayIndex=${idx}&note=${encoded}&t=${Date.now()}`);
+      const d=await r.json();
+      if(d.success){ delete retryQueue[idx]; saveLocal(); }
+    }catch(e){ break; } // still offline, stop trying
+  }
+  const remaining=Object.keys(retryQueue).length;
+  if(remaining===0) setSyncStatus("ok","All notes synced");
+  else setSyncStatus("error",`${remaining} note${remaining>1?"s":""} still pending`);
 }
 function saveNote(){
   const v=document.getElementById("note-input").value.trim();
@@ -556,6 +585,11 @@ document.querySelectorAll(".fbtn").forEach(b=>{
 function initWeekOffset(){const ws=getWeekStart(0);const diff=Math.floor((TODAY-ws)/604800000);weekOffset=Math.max(0,Math.min(diff,8));}
 
 loadLocal();buildTodayHero();initWeekOffset();loadFromSheet();
+
+// Auto-flush retry queue when connection restored
+window.addEventListener("online", ()=>{
+  if(Object.keys(retryQueue).length>0) flushRetryQueue();
+});
 </script>
 </body>
 </html>
