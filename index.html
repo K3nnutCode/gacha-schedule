@@ -675,6 +675,9 @@ loadLocal();buildTodayHero();initWeekOffset();loadFromSheet();
 window.addEventListener("online", ()=>{
   if(Object.keys(retryQueue).length>0) flushRetryQueue();
 });
+  if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/gacha-schedule/sw.js');
+}
 </script>
 </body>
 </html>
