@@ -123,7 +123,12 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .day-row.done{opacity:0.3;background:var(--bg);}
 .day-row.done .tick{background:var(--success);border-color:transparent;}
 .day-row.done .tick svg{opacity:1;}
-.day-row.is-today{border-color:rgba(74,158,245,0.45);background:rgba(74,158,245,0.04);}
+.day-row.is-today{
+  border-color:#4a9ef5;
+  border-width:1.5px;
+  background:rgba(74,158,245,0.10);
+  box-shadow:0 0 0 3px rgba(74,158,245,0.08);
+}
 .day-row.has-event{border-color:rgba(232,162,48,0.4);}
 .day-row.has-event.done{border-color:var(--border);}
 .day-row.saving{pointer-events:none;}
@@ -138,6 +143,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .time-chip{font-size:9px;color:var(--gold);background:rgba(232,184,75,0.08);border:1px solid rgba(232,184,75,0.2);border-radius:20px;padding:2px 6px;white-space:nowrap;flex-shrink:0;}
 .tick{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;}
 .tick svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity 0.15s;}
+.today-badge{display:inline-block;font-size:8px;font-weight:800;letter-spacing:0.1em;color:#4a9ef5;background:rgba(74,158,245,0.15);border:1px solid rgba(74,158,245,0.4);border-radius:4px;padding:1px 5px;margin-top:3px;}
 .note-snippet{grid-column:1/-1;font-size:10px;color:var(--text3);padding:4px 0 2px;border-top:1px solid var(--border);margin-top:2px;display:flex;align-items:center;gap:5px;cursor:text;}
 .note-snippet.has-note{color:var(--text2);}
 .note-snippet svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
@@ -281,6 +287,21 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   </div>
 </div>
 
+<!-- END SCREEN -->
+<div class="overlay" id="overlay-end">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>🎉 Schedule Complete</h3>
+    <p style="margin-bottom:8px;">You finished the Jun 23 – Aug 22 rotation.</p>
+    <div id="end-stats" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.8;"></div>
+    <p>Ready to set up the next 2-month schedule? Open Claude and say <span style="color:var(--info);font-weight:600;">"build my next gacha schedule"</span> — your rotation history is saved in the Sheet.</p>
+    <div class="sheet-btns" style="margin-top:14px;">
+      <button class="sbtn cancel" onclick="document.getElementById('overlay-end').classList.remove('open')">Close</button>
+      <button class="sbtn save" onclick="window.open('https://claude.ai','_blank')">Open Claude →</button>
+    </div>
+  </div>
+</div>
+
 <!-- EVENT SHEET -->
 <div class="overlay" id="overlay-event">
   <div class="sheet">
@@ -326,8 +347,9 @@ const SCH={
 };
 const DAYS  =["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const START =new Date(2026,5,23);
-const TODAY =new Date();
+const START   =new Date(2026,5,23);
+const END_DATE=new Date(2026,7,22); // Aug 22 2026
+const TODAY   =new Date();
 
 let done={},events={},loggedTime={},notes={};
 let filter="all",currentView="list",pending={},todayIdx=-1,weekOffset=0;
@@ -406,8 +428,31 @@ function setView(v){
   if(v==="week")renderWeek();
 }
 
+function isScheduleOver(){
+  const todayMidnight=new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate());
+  const endMidnight  =new Date(END_DATE.getFullYear(),END_DATE.getMonth(),END_DATE.getDate());
+  return todayMidnight>endMidnight;
+}
+
 function buildTodayHero(){
   todayIdx=getTodayIdx();
+
+  if(isScheduleOver()){
+    // Show end-of-schedule state
+    const hero=document.getElementById("today-hero");
+    hero.style.display="block";
+    document.getElementById("today-bg").style.background="#e8b84b";
+    document.getElementById("tc-game").textContent="Schedule Complete";
+    document.getElementById("tc-game").style.color="var(--gold)";
+    document.getElementById("tc-focus").textContent="Aug 22 was the last day — you made it through the rotation.";
+    document.getElementById("tc-pill").textContent="Start a new schedule →";
+    document.getElementById("tc-pill").style.cssText="background:rgba(232,184,75,0.15);color:var(--gold);border:1px solid rgba(232,184,75,0.4);cursor:pointer;";
+    document.getElementById("tc-pill").onclick=()=>showEndScreen();
+    // Hide timer — not relevant post-schedule
+    document.getElementById("timer-block").style.display="none";
+    return;
+  }
+
   if(todayIdx<0){document.getElementById("today-hero").style.display="none";return;}
   const{d,dayName,game,color,focus}=getDayData(todayIdx);
   document.getElementById("tc-game").textContent=game;
@@ -419,11 +464,21 @@ function buildTodayHero(){
   if(loggedTime[todayIdx]){timerSec=loggedTime[todayIdx];document.getElementById("timer-num").textContent=fmt(timerSec);document.getElementById("reset-btn").style.display="flex";}
 }
 
+function showEndScreen(){
+  document.getElementById("overlay-end").classList.add("open");
+}
+
 function scrollToToday(){
   setTimeout(()=>{
     const el=document.querySelector(".day-row.is-today");
-    if(el){const sa=document.getElementById("scroll-area");sa.scrollTo({top:el.offsetTop-20,behavior:"smooth"});}
-  },400);
+    if(!el) return;
+    const sa=document.getElementById("scroll-area");
+    const elRect=el.getBoundingClientRect();
+    const saRect=sa.getBoundingClientRect();
+    // position today row 24px below the top of the scroll container
+    const offset=sa.scrollTop+(elRect.top-saRect.top)-24;
+    sa.scrollTo({top:offset,behavior:"smooth"});
+  },500);
 }
 
 // EVENT
@@ -556,7 +611,11 @@ function render(){
       row.className=["day-row",isDone?"done":"",isToday?"is-today":"",isSaving?"saving":"",hasEvent&&!isDone?"has-event":""].filter(Boolean).join(" ");
       const flagCell=hasEvent?`<div class="event-tag" title="${events[i]}" onclick="openEventSheet(${i},event)">⚠ ${events[i]}</div>`:`<button class="flag-btn" onclick="openEventSheet(${i},event)" title="Set event deadline">⚑</button>`;
       row.innerHTML=`
-        <div><div class="date-num">${d.getDate()} ${MONTHS[d.getMonth()]}</div><div class="date-day">${dayName}</div></div>
+        <div>
+          <div class="date-num">${d.getDate()} ${MONTHS[d.getMonth()]}</div>
+          <div class="date-day">${dayName}</div>
+          ${isToday?'<div class="today-badge">TODAY</div>':''}
+        </div>
         <div class="gpill" style="background:${color}">${game}</div>
         <div class="focus-text">${focus}</div>
         ${hasTime?`<div class="time-chip">⏱ ${fmt(loggedTime[i])}</div>`:"<div></div>"}
@@ -583,6 +642,26 @@ document.querySelectorAll(".fbtn").forEach(b=>{
 });
 
 function initWeekOffset(){const ws=getWeekStart(0);const diff=Math.floor((TODAY-ws)/604800000);weekOffset=Math.max(0,Math.min(diff,8));}
+
+function buildEndStats(){
+  let dc=0,ef=0,ww=0,zzz=0,noteCount=0,totalSec=0;
+  for(let i=0;i<61;i++){
+    if(done[i]){dc++;const{game}=getDayData(i);if(game==="Endfield")ef++;else if(game==="WuWa")ww++;else zzz++;}
+    if(notes[i])noteCount++;
+    if(loggedTime[i])totalSec+=loggedTime[i];
+  }
+  const hrs=Math.floor(totalSec/3600),mins=Math.floor((totalSec%3600)/60);
+  const timeStr=totalSec>0?(hrs>0?`${hrs}h ${mins}m`:`${mins}m`):"Not tracked";
+  const pct=Math.round(dc/61*100);
+  document.getElementById("end-stats").innerHTML=`
+    ✅ <b style="color:var(--text)">${dc}/61 days</b> completed (${pct}%)<br>
+    🌿 Endfield <b style="color:var(--ef)">${ef}/21</b> &nbsp;·&nbsp;
+    🌊 WuWa <b style="color:var(--ww)">${ww}/18</b> &nbsp;·&nbsp;
+    ⚡ ZZZ <b style="color:var(--zzz)">${zzz}/18</b><br>
+    📝 <b style="color:var(--text)">${noteCount}</b> session notes written<br>
+    ⏱ <b style="color:var(--gold)">${timeStr}</b> total play time logged
+  `;
+}
 
 loadLocal();buildTodayHero();initWeekOffset();loadFromSheet();
 
