@@ -1,0 +1,16 @@
+{
+  "name": "Mission Log",
+  "short_name": "Mission Log",
+  "start_url": "/gacha-schedule/",
+  "display": "standalone",
+  "background_color": "#080910",
+  "theme_color": "#080910",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/k3nnutcode/gacha-schedule/main/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
