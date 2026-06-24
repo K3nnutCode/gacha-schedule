@@ -127,7 +127,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .day-row{display:grid;grid-template-columns:58px auto 1fr auto auto auto;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:4px;}
 .day-row:active{background:var(--bg3);}
 .day-row.done{opacity:0.3;background:var(--bg);}
-.day-row.done .tick{background:var(--success);border-color:transparent;}
+.day-row.done .tick{background:transparent;}
 .day-row.done .tick svg{opacity:1;}
 .day-row.is-today{
   border-color:#4a9ef5;
@@ -138,17 +138,59 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .day-row.has-event{border-color:rgba(232,162,48,0.4);}
 .day-row.has-event.done{border-color:var(--border);}
 .day-row.saving{pointer-events:none;}
-.day-row.saving .tick{border-color:var(--warn);}
+/* saving tick handled by ::after */
 .date-num{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);line-height:1.1;}
 .date-day{font-size:9px;color:var(--text3);font-weight:500;margin-top:1px;}
 .gpill{font-size:9px;font-weight:700;color:#fff;padding:3px 8px;border-radius:20px;white-space:nowrap;letter-spacing:0.04em;}
 .focus-text{font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .event-tag{font-size:9px;color:var(--warn);background:rgba(232,162,48,0.1);border:1px solid rgba(232,162,48,0.25);border-radius:20px;padding:2px 7px;white-space:nowrap;max-width:80px;overflow:hidden;text-overflow:ellipsis;}
-.flag-btn{width:20px;height:20px;border-radius:50%;border:1px dashed var(--border2);background:transparent;color:var(--text3);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.flag-btn{
+  width:44px;height:44px;
+  border-radius:50%;
+  border:none;
+  background:transparent;
+  color:var(--text3);
+  font-size:14px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+  flex-shrink:0;
+  position:relative;
+}
+.flag-btn::after{
+  content:'';
+  position:absolute;
+  width:24px;height:24px;
+  border-radius:50%;
+  border:1px dashed var(--border2);
+  transition:all 0.15s;
+}
+.flag-btn:hover::after,.flag-btn:active::after{border-color:var(--warn);}
+.flag-btn:hover{color:var(--warn);}
 .flag-btn:hover{border-color:var(--warn);color:var(--warn);}
 .time-chip{font-size:9px;color:var(--gold);background:rgba(232,184,75,0.08);border:1px solid rgba(232,184,75,0.2);border-radius:20px;padding:2px 6px;white-space:nowrap;flex-shrink:0;}
-.tick{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;}
-.tick svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity 0.15s;}
+.tick{
+  width:44px;height:44px;
+  border-radius:50%;
+  border:none;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:all 0.15s;
+  position:relative;
+  background:transparent;
+}
+.tick::after{
+  content:'';
+  position:absolute;
+  width:28px;height:28px;
+  border-radius:50%;
+  border:1.5px solid var(--border2);
+  transition:all 0.15s;
+}
+.day-row.done .tick::after{background:var(--success);border-color:transparent;}
+.day-row.saving .tick::after{border-color:var(--warn);}
+.tick:active::after{transform:scale(0.9);}
+.tick svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity 0.15s;position:relative;z-index:1;}
 .today-badge{display:inline-block;font-size:8px;font-weight:800;letter-spacing:0.1em;color:#4a9ef5;background:rgba(74,158,245,0.15);border:1px solid rgba(74,158,245,0.4);border-radius:4px;padding:2px 6px;}
 .note-snippet{grid-column:1/-1;font-size:10px;color:var(--text3);padding:4px 0 2px;border-top:1px solid var(--border);margin-top:2px;display:flex;align-items:center;gap:5px;cursor:text;}
 .note-snippet.has-note{color:var(--text2);}
