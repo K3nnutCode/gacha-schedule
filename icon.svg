@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <!-- Background -->
+  <rect width="192" height="192" fill="#080910" rx="45"/>
+  
+  <!-- Outer circle accent -->
+  <circle cx="96" cy="96" r="85" fill="none" stroke="#e8b84b" stroke-width="3"/>
+  
+  <!-- Inner design: stylized schedule/calendar -->
+  <g transform="translate(96, 96)">
+    <!-- Center circle -->
+    <circle cx="0" cy="0" r="50" fill="#e8b84b" opacity="0.15"/>
+    
+    <!-- Checkmark symbol (mission complete) -->
+    <g transform="translate(-15, -10)" fill="none" stroke="#e8b84b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="5,20 15,30 35,10"/>
+    </g>
+    
+    <!-- Three horizontal bars (list/schedule) -->
+    <rect x="-35" y="15" width="25" height="4" fill="#3a9e6e" rx="2"/>
+    <rect x="-35" y="28" width="25" height="4" fill="#2e87cc" rx="2"/>
+    <rect x="-35" y="41" width="25" height="4" fill="#c94f35" rx="2"/>
+  </g>
+</svg>
