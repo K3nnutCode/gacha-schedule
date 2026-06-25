@@ -197,27 +197,27 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .note-snippet svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
 
 /* WEEK VIEW */
-#week-view{display:none;padding:0 0 24px;}
-.week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-top:8px;}
-.week-nav-btn{border:none;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);padding:5px 12px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;}
-.week-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--text);}
-.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+#week-view{display:none;padding:0 0 24px;width:100%;min-width:0;overflow:hidden;}
+.week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-top:8px;gap:8px;min-width:0;}
+.week-nav-btn{border:1px solid var(--border);background:var(--bg3);border-radius:8px;color:var(--text2);padding:5px 10px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;flex-shrink:0;}
+.week-title{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--text);text-align:center;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;width:100%;min-width:0;}
 .week-col-header{font-size:8px;font-weight:700;color:var(--text3);text-align:center;text-transform:uppercase;letter-spacing:0.06em;padding:3px 0 5px;}
-.week-cell{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 4px;min-height:68px;display:flex;flex-direction:column;gap:2px;cursor:pointer;transition:all 0.15s;}
+.week-cell{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 2px;min-height:72px;display:flex;flex-direction:column;gap:2px;cursor:pointer;transition:all 0.15s;min-width:0;overflow:hidden;}
 .week-cell:active{background:var(--bg3);}
 .week-cell.today{border-color:rgba(74,158,245,0.45);}
 .week-cell.done{opacity:0.32;}
 .week-cell.out-of-range{opacity:0.15;pointer-events:none;background:var(--bg);}
 .week-cell.has-event{border-color:rgba(232,162,48,0.4);}
-.wc-date{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--text);line-height:1;}
-.wc-pill{font-size:7px;font-weight:700;color:#fff;padding:2px 4px;border-radius:20px;text-align:center;line-height:1.3;}
+.wc-date{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--text);line-height:1;}
+.wc-pill{font-size:7px;font-weight:700;color:#fff;padding:2px 3px;border-radius:4px;text-align:center;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;}
 .wc-tick{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;margin-top:auto;}
 .wc-tick svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;opacity:0;}
 .week-cell.done .wc-tick{background:var(--success);border-color:transparent;}
 .week-cell.done .wc-tick svg{opacity:1;}
-.wc-note{font-size:7px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wc-note{font-size:7px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;min-width:0;}
 .wc-event{font-size:7px;color:var(--warn);}
-.week-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px;}
+.week-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px;width:100%;}
 .ws-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;text-align:center;}
 .ws-num{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;}
 .ws-label{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;}
@@ -243,7 +243,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   .focus-text{display:none;}
   .today-game{font-size:17px;}
   .timer-num{font-size:20px;}
-  .week-cell{min-height:58px;}
+  .week-cell{min-height:58px;padding:3px 2px;}
 }
 </style>
 </head>
@@ -717,6 +717,31 @@ loadLocal();buildTodayHero();initWeekOffset();loadFromSheet();
 // Auto-flush retry queue when connection restored
 window.addEventListener("online", ()=>{
   if(Object.keys(retryQueue).length>0) flushRetryQueue();
+});
+
+// ── AUTO REFRESH ON RESUME ──
+// Tracks the date the app was last active
+let lastActiveDate = new Date().toDateString();
+
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState === "visible"){
+    const currentDate = new Date().toDateString();
+    const dateChanged = currentDate !== lastActiveDate;
+    lastActiveDate = currentDate;
+
+    if(dateChanged){
+      // Day rolled over — reinitialise everything date-dependent
+      window.TODAY = new Date();
+      buildTodayHero();
+      initWeekOffset();
+    }
+
+    // Always re-fetch from Sheet on resume so ticks/notes are fresh
+    loadFromSheet();
+
+    // Flush any queued notes if back online
+    if(Object.keys(retryQueue).length > 0) flushRetryQueue();
+  }
 });
   if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/gacha-schedule/sw.js');
