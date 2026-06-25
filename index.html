@@ -137,6 +137,23 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 }
 .day-row.has-event{border-color:rgba(232,162,48,0.4);}
 .day-row.has-event.done{border-color:var(--border);}
+.day-row.missed{
+  border-color:rgba(224,82,82,0.5);
+  background:rgba(224,82,82,0.06);
+}
+.day-row.missed .date-num{color:var(--danger);}
+.day-row.missed .date-day{color:rgba(224,82,82,0.6);}
+.missed-badge{
+  display:inline-block;
+  font-size:8px;font-weight:800;
+  letter-spacing:0.1em;
+  color:var(--danger);
+  background:rgba(224,82,82,0.12);
+  border:1px solid rgba(224,82,82,0.35);
+  border-radius:4px;
+  padding:1px 5px;
+  margin-top:3px;
+}
 .day-row.saving{pointer-events:none;}
 /* saving tick handled by ::after */
 .date-num{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);line-height:1.1;}
@@ -272,7 +289,11 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
       </div>
       <div class="progress-wrap">
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
-        <div class="progress-label"><span><span id="done-count">0</span> / 61 days</span><span id="pct">0%</span></div>
+        <div class="progress-label">
+          <span><span id="done-count">0</span> / 61 days</span>
+          <span id="miss-label" style="color:var(--danger);display:none">⚠ <span id="miss-count">0</span> missed</span>
+          <span id="pct">0%</span>
+        </div>
       </div>
     </div>
   </div>
@@ -466,6 +487,15 @@ function getDayData(i){const d=new Date(START);d.setDate(d.getDate()+i);const dn
 function getTodayIdx(){for(let i=0;i<61;i++){const d=new Date(START);d.setDate(d.getDate()+i);if(d.toDateString()===TODAY.toDateString())return i;}return -1;}
 function calcStreak(){let s=0;const base=todayIdx>=0?todayIdx:60;for(let i=base;i>=0;i--){if(done[i])s++;else break;}return s;}
 
+function isMissed(i){
+  // A day is missed if it's in the past, not done, and not today
+  const d=new Date(START);
+  d.setDate(d.getDate()+i);
+  const dayMidnight=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  const todayMidnight=new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate());
+  return dayMidnight < todayMidnight && !done[i];
+}
+
 function setView(v){
   currentView=v;
   document.getElementById("vt-list").className="vtbtn"+(v==="list"?" active":"");
@@ -639,6 +669,21 @@ function render(){
   document.getElementById("ef-count").textContent=ef;document.getElementById("ww-count").textContent=ww;document.getElementById("zzz-count").textContent=zzz;
   document.getElementById("ef-bar").style.width=(ef/21*100)+"%";document.getElementById("ww-bar").style.width=(ww/18*100)+"%";document.getElementById("zzz-bar").style.width=(zzz/18*100)+"%";
   document.getElementById("streak-num").textContent=calcStreak();
+
+  // Count missed days
+  let missCount=0;
+  for(let i=0;i<61;i++){ if(isMissed(i)) missCount++; }
+  const missLabel=document.getElementById("miss-label");
+  const missCountEl=document.getElementById("miss-count");
+  if(missCount>0){
+    missCountEl.textContent=missCount;
+    missLabel.style.display="inline";
+    document.getElementById("pct").style.display="none";
+  }else{
+    missLabel.style.display="none";
+    document.getElementById("pct").style.display="inline";
+  }
+
   if(currentView==="week"){renderWeek();return;}
   const list=document.getElementById("schedule-list");list.innerHTML="";
   const groups={};
@@ -657,13 +702,14 @@ function render(){
       const isDone=!!done[i],isSaving=!!pending[i],isToday=d.toDateString()===TODAY.toDateString();
       const hasEvent=!!events[i],hasTime=loggedTime[i]&&loggedTime[i]>0,hasNote=!!notes[i];
       const row=document.createElement("div");
-      row.className=["day-row",isDone?"done":"",isToday?"is-today":"",isSaving?"saving":"",hasEvent&&!isDone?"has-event":""].filter(Boolean).join(" ");
+      const isMissedDay=isMissed(i);
+      row.className=["day-row",isDone?"done":"",isToday?"is-today":"",isSaving?"saving":"",hasEvent&&!isDone?"has-event":"",isMissedDay&&!isDone?"missed":""].filter(Boolean).join(" ");
       const flagCell=hasEvent?`<div class="event-tag" title="${events[i]}" onclick="openEventSheet(${i},event)">⚠ ${events[i]}</div>`:`<button class="flag-btn" onclick="openEventSheet(${i},event)">+</button>`;
       row.innerHTML=`
         <div>
           <div class="date-num">${d.getDate()} ${MONTHS[d.getMonth()]}</div>
           <div class="date-day">${dayName}</div>
-          ${isToday?'<div class="today-badge">TODAY</div>':''}
+          ${isToday?'<div class="today-badge">TODAY</div>':isMissedDay&&!isDone?'<div class="missed-badge">MISSED</div>':''}
         </div>
         <div class="gpill" style="background:${color}">${game}</div>
         <div class="focus-text">${focus}</div>
